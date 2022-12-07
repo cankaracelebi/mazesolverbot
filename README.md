@@ -1,2 +1,2 @@
 # mazesolverbot
-Maze solver repository for METU Robot Society
+Maze solver repository for METU Robotics Society
