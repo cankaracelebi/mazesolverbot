@@ -1,7 +1,7 @@
 from machine import Pin
 import utime
 import stepper
-
+#https://github.com/gavinlyonsrepo/RpiMotorLib/blob/master/Documentation/Nema11TB6612FNG.md
 Motorname = "MotorOne" 
 Motortype = "Nema"
 mymotortest = stepper.Stepper(Motorname, Motortype)
