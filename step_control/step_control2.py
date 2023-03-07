@@ -1,41 +1,66 @@
 from machine import Pin
 import utime
+import stepper
 
-step_one = Pin(2,Pin.OUT)
-direction_one = Pin(3,Pin.OUT)
-step_two = Pin(8,Pin.OUT)
-direction_two = Pin(9, Pin.OUT)
-spr = 4000
+Motorname = "MotorOne" 
+Motortype = "Nema"
+mymotortest = stepper.Stepper(Motorname, Motortype)
+A11 = 13
+A12 = 12
+B11 = 14
+B12 = 15 
+GpioPins = [A11, B11, A12,B12]
 
-while True:
-    direction_one.high()
-    direction_two.high()
-    for i in range(spr):
-        step_one.high()
-        step_two.high()
+pwma = Pin(6, Pin.OUT)
+pwmb = Pin(7, Pin.OUT)
+pwma.value(1)
+pwmb.value(1)
+stby = Pin(8,Pin.OUT)
+stby.value(1)
 
-        utime.sleep(0.001)
+utime.sleep(1)
+input("Press <Enter> to continue Test1")
+wait = 0.5
+steps = 50 # No of step sequences
+ccwise = False
+verbose= True
+steptype = "full"
+initdelay = 1
+mymotortest.motor_run(GpioPins ,wait ,steps ,ccwise ,verbose, steptype ,initdelay)
+utime.sleep(1)
 
-        step_one.low()
-        step_two.low()
+utime.sleep(1)
+input("Press <Enter> to continue Test2")
+wait = 0.1
+steps = 25 # No of step sequences
+ccwise = False
+verbose= True
+steptype = "full"
+initdelay = 1
+mymotortest.motor_run(GpioPins ,wait ,steps ,ccwise ,verbose, steptype ,initdelay)
+utime.sleep(1)
 
-        utime.sleep(0.001)
-    utime.sleep(2)
-    direction_one.high()
-    direction_two.high()
 
-    for j in range(spr):
-        step_one.high()
-        step_two.high()
-        
-        
-        
-        utime.sleep(0.001)
+utime.sleep(1)
+input("Press <Enter> to continue Test3")
+wait = 0.2
+steps = 25 # No of step sequences
+ccwise = False
+verbose= True
+steptype = "half"
+initdelay = 1
+mymotortest.motor_run(GpioPins ,wait ,steps ,ccwise ,verbose, steptype ,initdelay)
+utime.sleep(1)
 
-        step_one.low()
-        step_two.low()
-
-        utime.sleep(0.001)
-    utime.sleep(2)
+utime.sleep(1)
+input("Press <Enter> to continue Test4")
+wait = 0.05
+steps = 50 # No of step sequences
+ccwise = False
+verbose= True
+steptype = "half"
+initdelay = 1
+mymotortest.motor_run(GpioPins ,wait ,steps ,ccwise ,verbose, steptype ,initdelay)
+utime.sleep(1)
 
 

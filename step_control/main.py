@@ -1,5 +1,8 @@
 import random
 from machine import Pin
+import machine
+import utime
+import stepper
 
 
 left = Pin(19, Pin.IN, Pin.PULL_DOWN )
@@ -79,8 +82,7 @@ def move(road):
 # We will call it when we are in a dead end.
 def turn_back():
     # rotate 180 degree
-    dir=dir_update[dir["Back"]]
-
+    dir=dir_update[dir]["Back"]
 
 while True:
     # If we don't have any open roads,which means we are in a dead-end, we are turning back.

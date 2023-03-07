@@ -1,102 +1,135 @@
-# stepper.py
-
-# A micropython driver for 4-phase, unipolar stepper motors such as
-# the 28BYJ-48
-
-# Relesed to the Public Domain by Nicko van Someren, 2020
-
-# The constructor for the Stepper class takes as arguments the four
-# pins for driving the motor phases, in phase order, and optionally a
-# timer. The pins can be passed as pin numbers or machine.Pin objects
-# and the timer can be a machine.Timer object or a timer index. Note
-# that if two stepper motors use the same timer then they will not be
-# able to run at the same time.
-#
-# The run() method takes a number of steps and an optional delay (in
-# seconds) between driving the steps (the default is 1ms). A negative
-# step count will drive the motor in the oposite direction to a
-# positive count. The count represents "half steps" since the driver
-# alternates driving single coils and driving pairs of adjacent coils.
-# Calls to run() return immediately; the motor runs on a timer in the
-# background. Calling run() again before the previous command has
-# finished adds the new count to the old count, so the destination
-# position is the sum of the requests; the delay is set to the new
-# value if stepper is not already at its final location.
-#
-# The stop() method will stop the rotation of the motor. It returns
-# the number of un-taken steps that would be needed to perform the
-# outstanding requests from previous calls to run().
-#
-# The is_running property returns true if the motor is running,
-# i.e. stop() would return a non-zero value, and false otherwise.
 
 import machine
-import time
-from machine import Timer
+from machine import Pin
+import utime
 
-# When the following number is sampled at four consecutive
-# even-numbered bits it will have two bits set, but sampling at four
-# consecutive odd-numbered bits will only yield one bit set.
+class Stepper(object):
 
-_WAVE_MAGIC = 0b0000011100000111
+    def __init__(self, name='Step1', motor_type = 'Nema'):
+        self.name = name
+        self.motor_type = motor_type
+        self.stop_motor = False
+    
+    def motor_stop(self):
+        self.stop_motor = True
+    
+    def motor_run(self, pins , wait = 0.001, steps = 512, ccwise = False, verbose = False, steptype = 'half', initdelay = 0.001):
+        # pins = int list of pin numbers a in a out b in b out eg: [13,12,14,15]
+        # wait: duration between steps
+        # default steps for a revolution
+        # ccwise = reverses the sequence
+        # steptype = 'full'(high torque), 'half step'(medium torque results in smoother revolutions), 'wave'(useless)
+        # initdelay : wait time before motor's first step
+        
+        if steps < 0:
+            print("Error BYJMotor 101: Step number must be greater than 0")
+        
+        try:
+            self.stop_motor = False
+            for i,pin in enumerate(pins):
+                pins[i] = Pin(pin, Pin.OUT)
+                
+            utime.sleep(initdelay)
 
-class Stepper:
-    def __init__(self, A, B, C, D, T=1):
-        if not isinstance(T, machine.Timer):
-            T= Timer(T)
-        self._timer = T
-        l = []
-        for p in (A, B, C, D):
-            if not isinstance(p, machine.Pin):
-                p = machine.Pin(p, machine.Pin.OUT)
-            l.append(p)
-        self._pins = l
-        self._phase = 0
-        self._stop()
-        self._run_remaining = 0
+            # select step based on user input
+            # Each step_sequence is a list containing GPIO pins that should be set to High
+            if steptype == "half":  # half stepping.
+                step_sequence = list(range(0, 8))
+                step_sequence[0] = [pins[0]]
+                step_sequence[1] = [pins[0], pins[1]]
+                step_sequence[2] = [pins[1]]
+                step_sequence[3] = [pins[1], pins[2]]
+                step_sequence[4] = [pins[2]]
+                step_sequence[5] = [pins[2], pins[3]]
+                step_sequence[6] = [pins[3]]
+                step_sequence[7] = [pins[3], pins[0]]
+            elif steptype == "full":  # full stepping.
+                step_sequence = list(range(0, 4))
+                step_sequence[0] = [pins[0], pins[1]]
+                step_sequence[1] = [pins[1], pins[2]]
+                step_sequence[2] = [pins[2], pins[3]]
+                step_sequence[3] = [pins[0], pins[3]]
+            elif steptype == "wave":  # wave driving
+                step_sequence = list(range(0, 4))
+                step_sequence[0] = [pins[0]]
+                step_sequence[1] = [pins[1]]
+                step_sequence[2] = [pins[2]]
+                step_sequence[3] = [pins[3]]
+            else:
+                print("Error: StepTypeError : unknown step type : half, full or wave")
+                print(steptype)
+                quit()
 
-    def _stop(self):
-        [p.off() for p in self._pins]
+            #  To run motor in reverse we flip the sequence order.
+            if ccwise:
+                step_sequence.reverse()
 
-    # Note: This is called on an interrupt on some platforms, so it must not use the heap
-    def _callback(self, t):
-        if self._run_remaining != 0:
-            direction = 1 if self._run_remaining > 0 else -1
-            self._phase = (self._phase + direction) % 8
-            wave = _WAVE_MAGIC >> self._phase
-            for i in range(4):
-                self._pins[i].value((wave >> (i*2)) & 1)
-            self._run_remaining -= direction
+            def display_degree():
+                """ display the degree value at end of run if verbose"""
+                if self.motor_type == "28BYJ":
+                    degree = 1.422222
+                    print("Size of turn in degrees = {}".format(round(steps/degree, 2)))
+                elif self.motor_type == "Nema":
+                    degree = 7.2
+                    print("Size of turn in degrees = {}".format(round(steps*degree, 2)))
+                else:
+                    # Unknown Motor type
+                    print("Warning 201 : Unknown Motor Type : {}".format(self.motor_type))
+                    print("Size of turn in degrees = N/A")
+
+            def print_status(enabled_pins):
+                """   Print status of pins."""
+                if verbose:
+                    print("Next Step: Step sequence remaining : {} ".format(steps_remaining))
+                    for pin_print in pins:
+                        if pin_print in enabled_pins:
+                            print(" pin on {}".format(pin_print))
+                        else:
+                            print("pin off {}".format(pin_print))
+
+            # Iterate through the pins turning them on and off.
+            steps_remaining = steps
+            while steps_remaining > 0:
+                for pin_list in step_sequence:
+                    for pin in pins:
+                        if self.stop_motor:
+                            print('stop motor interrput')
+                            raise KeyboardInterrupt
+                        else:
+                            if pin in pin_list:
+                                pin.value(1)
+                            else:
+                                pin.value(0)
+                    print_status(pin_list)
+                    utime.sleep(wait)
+                steps_remaining -= 1
+
+        except KeyboardInterrupt:
+            print("User Keyboard Interrupt : StepMotorLib: ")
+        
+        except Exception as motor_error:
+            #print(sys.exc_info()[0])
+            print(motor_error)
+            print("Error : BYJMotor 103 : RpiMotorLib  : Unexpected error:")
         else:
-            self._timer.deinit()
-            self._stop()
+            # print report status if everything went well
+            if verbose:
+                print("\nStepMotorLib, Motor Run finished, Details:.\n")
+                print("Motor type = {}".format(self.motor_type))
+                print("Initial delay = {}".format(initdelay))
+                print("Used pins = {}".format(pins))
+                print("Wait time = {}".format(wait))
+                print("Number of step sequences = {}".format(steps))
+                print("Size of step sequence = {}".format(len(step_sequence)))
+                print("Number of steps = {}".format(steps*len(step_sequence)))
+                display_degree()
+                print("Counter clockwise = {}".format(ccwise))
+                print("Verbose  = {}".format(verbose))
+                print("Steptype = {}".format(steptype))
+        finally:
+            # switch off pins at end
+            for pin in pins:
+                pin.value(0)
 
-    def run(self, count, delay=0.001):
-        tick_hz=1000000
-        period = int(delay*tick_hz)
-        if period < 500:
-            period = 500
-        self._run_remaining += count
-        if self._run_remaining != 0:
-            self._timer.init(period=period, tick_hz=tick_hz,
-                             mode=machine.Timer.PERIODIC, callback=self._callback)
-        else:
-            self._timer.deinit()
-            self._stop()
+            
 
-    def stop(self):
-        remaining = self._run_remaining
-        self._run_remaining = 0
-        self._timer.deinit()
-        self._stop()
-        return remaining
-
-    @property
-    def is_running(self):
-        return self._run_remaining != 0
-
-
-motor = Stepper(13,12,14,15)
-
-while True:
-    motor.run(200)
