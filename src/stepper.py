@@ -5,29 +5,34 @@ import utime
 
 class Stepper(object):
 
-    def __init__(self, name='Step1', motor_type = 'Nema'):
+    def __init__(self, pins, name='Step1', motor_type = 'Nema', ):
         self.name = name
         self.motor_type = motor_type
         self.stop_motor = False
+        self.pins = pins
     
     def motor_stop(self):
         self.stop_motor = True
     
-    def motor_run(self, pins , wait = 0.001, steps = 512, ccwise = False, verbose = False, steptype = 'half', initdelay = 0.001):
+
+    
+    def motor_run(self, wait = 0.001, steps = 512, ccwise = False, verbose = False, steptype = 'half', initdelay = 0.001):
         # pins = int list of pin numbers a in a out b in b out eg: [13,12,14,15]
         # wait: duration between steps
         # default steps for a revolution
         # ccwise = reverses the sequence
         # steptype = 'full'(high torque), 'half step'(medium torque results in smoother revolutions), 'wave'(useless)
+        # verbose = just verbose for testing nothing important regarding the actual bot
         # initdelay : wait time before motor's first step
         
         if steps < 0:
-            print("Error BYJMotor 101: Step number must be greater than 0")
+            print("StepError: Step number must be greater than 0")
         
         try:
+            pins = []
             self.stop_motor = False
-            for i,pin in enumerate(pins):
-                pins[i] = Pin(pin, Pin.OUT)
+            for pin in self.pins:
+                pins.append(Pin(pin, Pin.OUT))
                 
             utime.sleep(initdelay)
 
@@ -94,7 +99,8 @@ class Stepper(object):
                     for pin in pins:
                         if self.stop_motor:
                             print('stop motor interrput')
-                            raise KeyboardInterrupt
+                            for pin in pins:
+                                 pin.value(0)
                         else:
                             if pin in pin_list:
                                 pin.value(1)
@@ -110,7 +116,7 @@ class Stepper(object):
         except Exception as motor_error:
             #print(sys.exc_info()[0])
             print(motor_error)
-            print("Error : BYJMotor 103 : RpiMotorLib  : Unexpected error:")
+            print("Error : MotorError   : Unexpected error:")
         else:
             # print report status if everything went well
             if verbose:
@@ -130,6 +136,6 @@ class Stepper(object):
             # switch off pins at end
             for pin in pins:
                 pin.value(0)
+    
 
-            
 

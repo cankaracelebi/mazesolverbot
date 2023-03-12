@@ -4,12 +4,14 @@ import stepper
 
 Motorname = "MotorOne" 
 Motortype = "Nema"
-mymotortest = stepper.Stepper(Motorname, Motortype)
+
 A11 = 13
 A12 = 12
 B11 = 14
 B12 = 15 
-GpioPins = [A11, B11, A12,B12]
+GpioPins = [A11, B11, A12, B12]
+
+mymotortest = stepper.Stepper(GpioPins,Motorname, Motortype )
 
 pwma = Pin(6, Pin.OUT)
 pwmb = Pin(7, Pin.OUT)
@@ -26,8 +28,10 @@ ccwise = False
 verbose= True
 steptype = "full"
 initdelay = 1
-mymotortest.motor_run(GpioPins ,wait ,steps ,ccwise ,verbose, steptype ,initdelay)
+mymotortest.motor_run(verbose=True, steptype='wave', ccwise=True, steps=1000
+                      )
 utime.sleep(1)
+
 
 utime.sleep(1)
 input("Press <Enter> to continue Test2")
@@ -37,7 +41,7 @@ ccwise = False
 verbose= True
 steptype = "full"
 initdelay = 1
-mymotortest.motor_run(GpioPins ,wait ,steps ,ccwise ,verbose, steptype ,initdelay)
+mymotortest.motor_run(wait ,steps ,ccwise ,verbose, steptype ,initdelay)
 utime.sleep(1)
 
 
@@ -49,7 +53,7 @@ ccwise = False
 verbose= True
 steptype = "half"
 initdelay = 1
-mymotortest.motor_run(GpioPins ,wait ,steps ,ccwise ,verbose, steptype ,initdelay)
+mymotortest.motor_run(wait ,steps ,ccwise ,verbose, steptype ,initdelay)
 utime.sleep(1)
 
 utime.sleep(1)
@@ -60,7 +64,7 @@ ccwise = False
 verbose= True
 steptype = "half"
 initdelay = 1
-mymotortest.motor_run(GpioPins ,wait ,steps ,ccwise ,verbose, steptype ,initdelay)
+mymotortest.motor_run(wait ,steps ,ccwise ,verbose, steptype ,initdelay)
 utime.sleep(1)
 
 
