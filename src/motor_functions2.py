@@ -26,6 +26,6 @@ right_motor = Stepper(pins = r_pins, name= 'right_motor', motor_type='Nema')
 
 
 def move_forward():
-    _thread.start_new_thread(left_motor.motor_run,steps=25)
-    _thread.start_new_thread(right_motor.motor_run)
+    _thread.start_new_thread(left_motor.motor_run,0.001, 512, False, False, False, 'half', 0.001)
+    _thread.start_new_thread(right_motor.motor_run,0.001, 512, False, False, False, 'half', 0.001)
 
