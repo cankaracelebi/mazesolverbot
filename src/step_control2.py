@@ -1,6 +1,7 @@
 from machine import Pin
 import utime
 import stepper
+import stepper_2
 #https://github.com/gavinlyonsrepo/RpiMotorLib/blob/master/Documentation/Nema11TB6612FNG.md
 Motorname = "MotorOne" 
 Motortype = "Nema"
@@ -21,10 +22,11 @@ V.value(1)
 
 
 GpioPins = [A11, B11, A12, B12]
+pins2 = []
 
 
 mymotortest = stepper.Stepper(GpioPins,Motorname, Motortype )
-
+motortest = stepper_2.Robot(GpioPins,pins2)
 pwma = Pin(6, Pin.OUT)
 pwmb = Pin(7, Pin.OUT)
 pwma.value(1)
