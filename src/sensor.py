@@ -28,7 +28,7 @@ def sens1():
 
     ultrason_duration = time_pulse_us(echo1, 1, 30000) 
     distance_cm = SOUND_SPEED * ultrason_duration / 20000
-    if (distance_cm>=15):
+    if (distance_cm>=15 or distance_cm<0):
         return 1
     else:
         return 0
@@ -47,7 +47,7 @@ def sens2():
 
     ultrason_duration = time_pulse_us(echo2, 1, 30000) 
     distance_cm = SOUND_SPEED * ultrason_duration / 20000
-    if (distance_cm>=15):
+    if (distance_cm>=15 or distance_cm<0):
         return 1
     else:
         return 0
@@ -65,7 +65,7 @@ def sens3():
 
     ultrason_duration = time_pulse_us(echo3, 1, 30000) 
     distance_cm = SOUND_SPEED * ultrason_duration / 20000
-    if (distance_cm>=15):
+    if (distance_cm>=15 or distance_cm<0):
         return 1
     else:
         return 0

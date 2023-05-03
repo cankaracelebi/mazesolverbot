@@ -27,6 +27,9 @@ myrobot = Robot(pins1,pins2)
 
 # This is the dictionary that we save values of cells.
 cell_values={}
+path = []
+# i will record every move of the robot and filter throught the simplification algorithm, if allowed we could put the robot to the start otherwise i will let it go back to the origin 
+# and solve it with the shortest path
 # Using x and y for save location of robot.
 x=0
 y=0
@@ -55,10 +58,13 @@ dir_update={
 def open_roads():
     _open_roads=[]
     if sensor.sens1()==1:
+        #right sensor
         _open_roads.append("Right")
     if sensor.sens2()==1:
+        #center sensor
         _open_roads.append("Forward")
     if sensor.sens3()==1:
+        #left sensor
         _open_roads.append("Left")
     return _open_roads
 # This function will help us at checking values of open roads, 
