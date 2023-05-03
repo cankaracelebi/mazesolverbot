@@ -4,12 +4,19 @@ import utime
 pins = [
     Pin(13, Pin.OUT), # black a in
     Pin(12, Pin.OUT), # green a out,
-    Pin(14, Pin.OUT), # Red b in
-    Pin(15, Pin.OUT), # blue b out
+    Pin(8, Pin.OUT), # Red b in
+    Pin(14, Pin.OUT), # blue b out
+    Pin(22, Pin.OUT), # black a in
+    Pin(21, Pin.OUT), # green a out,
+    Pin(3, Pin.OUT), # Red b in
+    Pin(20, Pin.OUT), # blue b out
     ]
 pwma = Pin(6, Pin.OUT)
-pwmb = Pin(7, Pin.OUT)
+pwmb = Pin(15, Pin.OUT)
+pwma2 = Pin(1, Pin.OUT)
+pwmb2 = Pin(19, Pin.OUT)
 pwma.value(1)
+pwmb.value(1)pwma.value(1)
 pwmb.value(1)
 stby = Pin(8,Pin.OUT)
 stby.value(1)
