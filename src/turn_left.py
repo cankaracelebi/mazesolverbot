@@ -3,11 +3,27 @@ import utime
 from stepper import Stepper
 import _thread
 import motor_functions
+from robot import Robot
+import sensor
 
-left = Pin(19, Pin.IN, Pin.PULL_DOWN )
-center = Pin(20, Pin.IN, Pin.PULL_DOWN)
-right = Pin(21, Pin.IN, Pin.PULL_DOWN)
-#TODO requires fine tuning for IR and motor functions for a fully functional algorithm
+
+pins1 = [13,12,14,15]
+pins2 = [22,21,20,19]
+######################
+pwma = Pin(6, Pin.OUT)
+pwmb = Pin(7, Pin.OUT)
+pwma.value(1)
+pwmb.value(1)
+pwma2 = Pin(0, Pin.OUT)
+pwmb2 = Pin(2, Pin.OUT)
+pwma2.value(1)
+pwmb2.value(1)
+stby = Pin(8,Pin.OUT)
+stby.value(1)
+stby2 = Pin(3,Pin.OUT)
+stby2.value(1)
+#######################
+myrobot = Robot(pins1,pins2)
 
 path = []
 
@@ -20,7 +36,7 @@ def move_half_size(steps):
     #function to make the robot move half its size
     return None
 
-def check_roads(l=left.value(), c=center.value(), r=right.value()):
+def check_roads(l=sensor.sens1(), c=sensor.sens2(), r=sensor.sens3()):
     #there are 8 different scenarios to detect
     #l -> left.value()
     if l==0 and c==0 and r == 0:
@@ -98,20 +114,20 @@ while inMaze:
 
     state = check_roads()
     if state == 'S':
-        motor_functions.move_forward()
+        myrobot.forward()
     
     elif state == 'D':
-        motor_functions.turn_back()
+        myrobot.turn_back()
         path = rec_interstection('B', path)
 
     elif state == 'SR':
-        motor_functions.move_half()
+        myrobot.forward()
         state = check_roads()
         if state == 'SR':
-            motor_functions.move_forward()
+            myrobot.forward()
             path = rec_interstection('S', path)
         else:
-            motor_functions.turn_right()
+            myrobot.turn_right()
             path = rec_interstection('R', path)
         
     elif state == 'LS':

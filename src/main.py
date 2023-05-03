@@ -2,12 +2,28 @@ import random
 from machine import Pin
 import machine
 import utime
-import stepper
+from robot import Robot
+import sensor
 
 
-left = Pin(19, Pin.IN, Pin.PULL_DOWN )
-center = Pin(20, Pin.IN, Pin.PULL_DOWN)
-right = Pin(21, Pin.IN, Pin.PULL_DOWN)
+pins1 = [13,12,14,15]
+pins2 = [22,21,20,19]
+##########################################
+pwma = Pin(6, Pin.OUT)
+pwmb = Pin(7, Pin.OUT)
+pwma.value(1)
+pwmb.value(1)
+pwma2 = Pin(0, Pin.OUT)
+pwmb2 = Pin(2, Pin.OUT)
+pwma2.value(1)
+pwmb2.value(1)
+stby = Pin(8,Pin.OUT)
+stby.value(1)
+stby2 = Pin(3,Pin.OUT)
+stby2.value(1)
+#########################################
+
+myrobot = Robot(pins1,pins2)
 
 # This is the dictionary that we save values of cells.
 cell_values={}
@@ -16,7 +32,7 @@ x=0
 y=0
 #The sensors return a HIGH signal if there is no object within the threshold distance and a LOW signal if there is an object within this distance.
 # Right-Forward-Left. This is the order that I use from index 0 to 2. 
-sensors=[right,center,left] 
+#sensors=[right,center,left] 
 # This is the first direction of robot. I named directions as north,south,east, and west.
 # But they are doesn't have to equal to real life.
 dir= "North"
@@ -38,11 +54,11 @@ dir_update={
 # This function will help us at finding open roads depending on datas that come from sensors.
 def open_roads():
     _open_roads=[]
-    if sensors[0]==1:
+    if sensor.sens1()==1:
         _open_roads.append("Right")
-    if sensors[1]==1:
+    if sensor.sens2()==1:
         _open_roads.append("Forward")
-    if sensors[2]==1:
+    if sensor.sens3()==1:
         _open_roads.append("Left")
     return _open_roads
 # This function will help us at checking values of open roads, 
@@ -66,14 +82,18 @@ def move(road):
     if road=="Forward":
         #TODO find the required steps
         # move one step
+        myrobot.forward(steps=50)
         print("Moving")
     elif road=="Right":
         #TODO find the requiredsteps
+        myrobot.turn_right()
+        myrobot.forward(steps=50)
             # rotate -90 degree
             # move one step
         print("Right")
     elif road=="Left":
-        #TODO ...
+        myrobot.turn_left()
+        myrobot.forward(steps=50)
         # rotate 90 degree
         # move one step
         print("Left")
@@ -82,6 +102,7 @@ def move(road):
 # We will call it when we are in a dead end.
 def turn_back():
     # rotate 180 degree
+    myrobot.turn_back()
     dir=dir_update[dir]["Back"]
 
 while True:
