@@ -18,7 +18,7 @@ echo3 = Pin(18, Pin.OUT)
 def sens1():
     #RIGHT
     global trig1,echo1
-    trig1.value(1)
+    trig1.value(0)
     time.sleep_us(5)
 
     trig1.value(1)
@@ -28,9 +28,13 @@ def sens1():
     ultrason_duration = time_pulse_us(echo1, 1, 30000) 
     distance_cm = SOUND_SPEED * ultrason_duration / 20000
     if (distance_cm>=15):
+        time.sleep_ms(500)
         return 1
+        
     else:
+        time.sleep_ms(500)
         return 0
+    
 
 
 
