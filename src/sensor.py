@@ -5,20 +5,21 @@ SOUND_SPEED=340
 TRIG_PULSE_DURATION_US=10
 
 #RIGHT
-trig1 = Pin(4,Pin.OUT)
-echo1 = Pin(5,Pin.OUT)
+trig1 = Pin(4, Pin.OUT)
+echo1 = Pin(5, Pin.OUT)
 #CENTER
-trig2 = Pin(9,Pin.OUT)
-echo2 = Pin(10,Pin.OUT)
+trig2 = Pin(9, Pin.OUT)
+echo2 = Pin(10, Pin.OUT)
 #RIGHT
-trig3 = Pin(11,Pin.OUT)
+trig3 = Pin(11, Pin.OUT)
 echo3 = Pin(18, Pin.OUT)
 
 
 def sens1():
     #RIGHT
     global trig1,echo1
-    trig1.value(1)
+    
+    trig1.value(0)
     time.sleep_us(5)
 
     trig1.value(1)
@@ -27,12 +28,11 @@ def sens1():
 
     ultrason_duration = time_pulse_us(echo1, 1, 30000) 
     distance_cm = SOUND_SPEED * ultrason_duration / 20000
-    if (distance_cm>=15):
-        return 1
-    else:
-        return 0
-
-
+    print(f"Sensor1: {distance_cm} cm")
+    time.sleep_ms(500)
+    
+while(True):
+    sens1()
 
 def sens2():
     #CENTER
