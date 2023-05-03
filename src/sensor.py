@@ -28,11 +28,12 @@ def sens1():
 
     ultrason_duration = time_pulse_us(echo1, 1, 30000) 
     distance_cm = SOUND_SPEED * ultrason_duration / 20000
-    print(f"Sensor1: {distance_cm} cm")
-    time.sleep_ms(500)
-    
-while(True):
-    sens1()
+    if (distance_cm>=15):
+        return 1
+    else:
+        return 0
+
+
 
 def sens2():
     #CENTER
