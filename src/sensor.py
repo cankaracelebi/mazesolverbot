@@ -6,13 +6,13 @@ TRIG_PULSE_DURATION_US=10
 
 #RIGHT
 trig1 = Pin(4, Pin.OUT)
-echo1 = Pin(5, Pin.OUT)
+echo1 = Pin(5, Pin.IN)
 #CENTER
 trig2 = Pin(9, Pin.OUT)
-echo2 = Pin(10, Pin.OUT)
+echo2 = Pin(10, Pin.IN)
 #RIGHT
 trig3 = Pin(11, Pin.OUT)
-echo3 = Pin(18, Pin.OUT)
+echo3 = Pin(18, Pin.IN)
 
 
 def sens1():
